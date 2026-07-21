@@ -1,0 +1,112 @@
+<div class="layout-container">
+  <div class="form-side">
+    <div class="add-box" *ngIf="!showForm" (click)="showForm = true">
+      <div class="plus-icon">+</div>
+      <p>Add Food</p>
+    </div>
+    <form *ngIf="showForm" [formGroup]="foodForm" (ngSubmit)="onSubmit()">
+      <h2>Food Form</h2>
+      <div class="form-group">
+        <label>Food Name</label>
+        <input type="text" formControlName="FoodName">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <input type="text" formControlName="Description">
+      </div>
+      <div class="form-group">
+        <label>Price</label>
+        <input type="number" formControlName="Price">
+      </div>
+      <div class="form-group">
+        <label>Quantity</label>
+        <input type="number" formControlName="Quantity">
+      </div>
+      <button type="submit" [disabled]="foodForm.invalid">
+        {{ editingIndex !== null ? "Update Food" : "Add Food" }}
+      </button>
+      <button type="button" (click)="showForm = false">Cancel</button>
+    </form>
+  </div>
+  <div class="table-side">
+    <h2>Foods</h2>
+    <div class="pagination-control mb-3">
+      <label>Items:</label>
+      <select [(ngModel)]="pageSize" (change)="changePageSize()">
+        <option [value]="10">10</option>
+        <option [value]="20">20</option>
+        <option [value]="50">50</option>
+      </select>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Food Name</th>
+          <th>Description</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Total</th>
+          <th>Edit/Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let food of paginatedFoodList()">
+          <td>{{ food.FoodName }}</td>
+          <td>{{ food.Description }}</td>
+          <td>Rs. {{ food.Price }}</td>
+          <td>
+            <button (click)="decreaseQuantity(food)">-</button>
+            {{ food.Quantity }}
+            <button (click)="increaseQuantity(food)">+</button>
+          </td>
+          <td>Rs. {{ getRowTotal(food) }}</td>
+          <td>
+            <button class="edit-btn" (click)="editFood(food)">Edit</button>
+            <button class="delete-btn" (click)="deleteFood(food)">Delete</button>
+          </td>
+        </tr>
+        <tr *ngIf="paginatedFoodList().length === 0">
+          <td colspan="6" class="empty-state">Ohooo! No food...</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="bottom-bar">
+      <div class="pagination">
+        <button (click)="previousPage()" [disabled]="currentPage === 1">Prev</button>
+        <button *ngFor="let page of pages()" (click)="changePage(page)">
+          {{ page }}
+        </button>
+        <button (click)="nextPage()" [disabled]="currentPage === totalPages()">Next</button>
+      </div>
+      <div class="summary">
+        <h3>Bill</h3>
+        <p><strong>Total:</strong> {{ getGrandTotal() }}</p>
+        <div *ngIf="paymentMethod === 'Card'">
+  <label>Card Tax (%)</label>
+  <input
+    type="number"
+    [(ngModel)]="cardTax"
+    min="0"
+    step="0.1"
+  />
+</div>
+        <label>
+          <input type="radio" name="payment" value="Card" [(ngModel)]="paymentMethod">
+          Card ({{ cardTax }}%)
+        </label>
+        <!-- <label>
+          <input type="radio" name="payment" value="Card" [(ngModel)]="paymentMethod">
+          Card (8%)
+        </label> -->
+        <br>
+        <label>
+          <input type="radio" name="payment" value="Cash" [(ngModel)]="paymentMethod">
+          Cash (16%)
+        </label>
+        <p><strong>Tax:</strong> {{ getTax() }}</p>
+        <p><strong>Final Total:</strong> {{ getFinalTotal() }}</p>
+        <button class="download-btn" (click)="downloadPDF()">Download PDF</button>
+      </div>
+    </div>
+  </div>
+</div>
