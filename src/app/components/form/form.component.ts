@@ -30,6 +30,7 @@ export class FoodComponent {
     Quantity: [1, [Validators.required, Validators.min(1)]],
   });
   foodList: FoodEntry[] = [];
+  storageArray: any[] = [];
   editingIndex: number | null = null;
   onSubmit() {
   if (!this.foodForm.valid) {
@@ -48,7 +49,15 @@ export class FoodComponent {
   Price: 0,
   Quantity: 1
 });
-  this.showForm = false;
+this.storageArray = this.foodList.map(food => ({
+  FoodName: food.FoodName,
+  Description: food.Description,
+  Price: food.Price,
+  Quantity: food.Quantity,
+  PaymentMethod: this.paymentMethod
+}));
+this.setlocalStorage();
+this.showForm = false;
 }
   paginatedFoodList(): FoodEntry[] {
   const start = (this.currentPage - 1) * this.pageSize;
@@ -160,21 +169,10 @@ doc.save("Restaurant_Menu.pdf");
 
 //storages
 setlocalStorage(): void {
-  console.log("Saving to local storage...");
-  localStorage.setItem("foodName", this.foodForm.value.FoodName);
-  localStorage.setItem("paymentMethod", this.paymentMethod);
-  localStorage.setItem("Tax", this.getTax().toString());
-  localStorage.setItem("grandTotal", this.getGrandTotal().toString());
-  localStorage.setItem("finalTotal", this.getFinalTotal().toString());
+  localStorage.setItem("foodData", JSON.stringify(this.storageArray));
 }
 getlocalStorage(): void {
-  console.log("Gettingfrom local storage...");
-  const foodName = localStorage.getItem("foodName");
-  const paymentMethod = localStorage.getItem("paymentMethod");
-  const tax = localStorage.getItem("Tax");
-  const grandTotal = localStorage.getItem("grandTotal");
-  const finalTotal = localStorage.getItem("finalTotal");
-  console.log(foodName, paymentMethod, tax, grandTotal, finalTotal);
+  this.storageArray = JSON.parse(localStorage.getItem("foodData") || "[]");
 }
 }
 
